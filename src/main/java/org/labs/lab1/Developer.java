@@ -19,13 +19,9 @@ public class Developer implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
-            Integer dish = waiter.getDish();
-            if (dish == null) {
-                System.out.println("Программист " + id + " закончил обед. Съел порций: " + eaten);
-                return;
-            }
+        Integer dish = waiter.getDish();
 
+        while (dish != null || eaten < Lunch.FOOD_PER_DEV) {
             try {
                 Thread.sleep(ThreadLocalRandom.current().nextInt(20, 60));
             } catch (InterruptedException e) {
@@ -53,6 +49,10 @@ public class Developer implements Runnable {
                 System.out.println("Программиста " + id + " прервали на поедании блюда #" + dish);
                 return;
             }
+
+            dish = waiter.getDish();
         }
+
+        System.out.println("Программист " + id + " закончил обед. Съел порций: " + eaten);
     }
 }

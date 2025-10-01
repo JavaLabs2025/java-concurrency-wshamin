@@ -14,13 +14,9 @@ public class Waiter implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
-            int next = Lunch.REMAINING_FOOD.getAndDecrement();
+        int next = Lunch.REMAINING_FOOD.getAndDecrement();
 
-            if (next <= 0) {
-                break;
-            }
-
+        while (next > 0) {
             try {
                 dishes.put(next);
             } catch (InterruptedException e) {
@@ -28,6 +24,8 @@ public class Waiter implements Runnable {
                 Thread.currentThread().interrupt();
                 return;
             }
+
+            next = Lunch.REMAINING_FOOD.getAndDecrement();
         }
     }
 

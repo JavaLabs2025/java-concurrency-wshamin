@@ -6,7 +6,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Lunch {
 
-    public static AtomicInteger REMAINING_FOOD = new AtomicInteger(1000);
+    public final static AtomicInteger REMAINING_FOOD = new AtomicInteger(500);
+    public static int FOOD_PER_DEV;
 
     public static void main(String[] args) {
         Lunch lab = new Lunch();
@@ -15,6 +16,7 @@ public class Lunch {
 
     private void startLunch() {
         int devCount = 7;
+        FOOD_PER_DEV = (REMAINING_FOOD.get() + devCount - 1) / devCount;
 
         ExecutorService executorService = Executors.newCachedThreadPool();
 
