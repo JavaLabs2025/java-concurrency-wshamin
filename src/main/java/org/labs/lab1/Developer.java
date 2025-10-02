@@ -19,9 +19,7 @@ public class Developer implements Runnable {
 
     @Override
     public void run() {
-        Integer dish = waiter.getDish();
-
-        while (dish != null || eaten < Lunch.FOOD_PER_DEV) {
+        while (eaten < Lunch.FOOD_PER_DEV) {
             try {
                 Thread.sleep(ThreadLocalRandom.current().nextInt(20, 60));
             } catch (InterruptedException e) {
@@ -29,9 +27,17 @@ public class Developer implements Runnable {
                 return;
             }
 
+            Integer dish = waiter.getDish();
+            if (dish == null) {
+                if (Lunch.REMAINING_FOOD.get() <= 0 && waiter.isKitchenEmpty()) {
+                    return;
+                }
+                continue;
+            }
+
             Spoon first = leftSpoon;
             Spoon second = rightSpoon;
-            if (first.getId() > second.getId()) {
+            if (first.id() > second.id()) {
                 Spoon tmp = first;
                 first = second;
                 second = tmp;
@@ -42,15 +48,14 @@ public class Developer implements Runnable {
                     synchronized (second) {
                         eaten++;
                         System.out.println("Программист " + id + " ест блюдо #" + dish);
-                        Thread.sleep(100);
+                        System.out.println("Всего съел: " + eaten + "/" + Lunch.FOOD_PER_DEV);
+                        Thread.sleep(ThreadLocalRandom.current().nextInt(60, 140));
                     }
                 }
             } catch (InterruptedException e) {
                 System.out.println("Программиста " + id + " прервали на поедании блюда #" + dish);
                 return;
             }
-
-            dish = waiter.getDish();
         }
 
         System.out.println("Программист " + id + " закончил обед. Съел порций: " + eaten);

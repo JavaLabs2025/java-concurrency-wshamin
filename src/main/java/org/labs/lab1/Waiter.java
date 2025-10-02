@@ -1,15 +1,16 @@
 package org.labs.lab1;
 
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class Waiter implements Runnable {
 
     private final int id;
-    private final SynchronousQueue<Integer> dishes = new SynchronousQueue<>();
+    private final BlockingQueue<Integer> dishes;
 
-    public Waiter(int id) {
+    public Waiter(int id, BlockingQueue<Integer> dishes) {
         this.id = id;
+        this.dishes = dishes;
     }
 
     @Override
@@ -31,21 +32,25 @@ public class Waiter implements Runnable {
 
     public Integer getDish() {
         try {
-            while (true) {
-                Integer dish = dishes.poll(200, TimeUnit.MILLISECONDS);
+            Integer dish = dishes.poll(200, TimeUnit.MILLISECONDS);
 
-                if (dish != null) {
-                    return dish;
-                }
-
-                if (Lunch.REMAINING_FOOD.get() <= 0) {
-                    return null;
-                }
+            if (dish != null) {
+                return dish;
             }
+
+            if (Lunch.REMAINING_FOOD.get() <= 0 && dishes.isEmpty()) {
+                return null;
+            }
+
+            return null;
         } catch (InterruptedException e) {
             System.out.println("Получение официантом " + id + " блюда было прервано");
             Thread.currentThread().interrupt();
             return null;
         }
+    }
+
+    public boolean isKitchenEmpty() {
+        return dishes.isEmpty();
     }
 }
