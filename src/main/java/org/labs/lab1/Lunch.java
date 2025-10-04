@@ -11,9 +11,8 @@ import org.labs.Main;
 
 public class Lunch {
 
-    public static int FOOD_PER_DEV;
     public static AtomicInteger REMAINING_FOOD;
-    public static BlockingQueue<Integer> KITCHEN;
+    public static BlockingQueue<Developer> KITCHEN;
 
     public static void main(String[] args) {
         Properties prop = new Properties();
@@ -43,8 +42,7 @@ public class Lunch {
 
     private void startLunch(int devCount, int waiterCount, int totalFood, ThreadPoolType threadPoolType) {
         REMAINING_FOOD = new AtomicInteger(totalFood);
-        FOOD_PER_DEV = (totalFood + devCount - 1) / devCount;
-        KITCHEN = new ArrayBlockingQueue<>(devCount);
+        KITCHEN = new PriorityBlockingQueue<>(devCount);
 
         ExecutorService executorService = switch (threadPoolType) {
             case FIXED -> Executors.newFixedThreadPool(devCount + waiterCount);
@@ -61,7 +59,7 @@ public class Lunch {
             executorService.execute(waiters[i]);
         }
 
-        Developer[] devs = getDevs(devCount, waiters);
+        Developer[] devs = getDevs(devCount);
         for (Developer dev : devs) {
             executorService.execute(dev);
         }
@@ -77,7 +75,7 @@ public class Lunch {
         System.out.println(threadPoolType + " thread pool отработал за " + workingTime + " мс");
     }
 
-    private static Developer[] getDevs(int devCount, Waiter[] waiters) {
+    private static Developer[] getDevs(int devCount) {
         Developer[] devs = new Developer[devCount];
 
         Spoon[] spoons = new Spoon[devCount];
@@ -88,8 +86,7 @@ public class Lunch {
         for (int i = 0; i < devCount; i++) {
             Spoon left  = spoons[i];
             Spoon right = spoons[(i + 1) % devCount];
-            Waiter waiter = waiters[i % waiters.length];
-            devs[i] = new Developer(i, left, right, waiter);
+            devs[i] = new Developer(i, left, right, KITCHEN);
         }
 
         return devs;

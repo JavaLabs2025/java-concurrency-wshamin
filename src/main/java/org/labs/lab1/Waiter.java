@@ -1,16 +1,14 @@
 package org.labs.lab1;
-
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 public class Waiter implements Runnable {
 
     private final int id;
-    private final BlockingQueue<Integer> dishes;
+    private final BlockingQueue<Developer> hungryDevs;
 
-    public Waiter(int id, BlockingQueue<Integer> dishes) {
+    public Waiter(int id, BlockingQueue<Developer> hungryDevs) {
         this.id = id;
-        this.dishes = dishes;
+        this.hungryDevs = hungryDevs;
     }
 
     @Override
@@ -19,7 +17,8 @@ public class Waiter implements Runnable {
 
         while (next > 0) {
             try {
-                dishes.put(next);
+                Developer hungryDev = hungryDevs.take();
+                hungryDev.eat();
             } catch (InterruptedException e) {
                 System.out.println("Вставка официантом " + id + " блюда #" + next + " была прервана");
                 Thread.currentThread().interrupt();
@@ -28,29 +27,5 @@ public class Waiter implements Runnable {
 
             next = Lunch.REMAINING_FOOD.getAndDecrement();
         }
-    }
-
-    public Integer getDish() {
-        try {
-            Integer dish = dishes.poll(200, TimeUnit.MILLISECONDS);
-
-            if (dish != null) {
-                return dish;
-            }
-
-            if (Lunch.REMAINING_FOOD.get() <= 0 && dishes.isEmpty()) {
-                return null;
-            }
-
-            return null;
-        } catch (InterruptedException e) {
-            System.out.println("Получение официантом " + id + " блюда было прервано");
-            Thread.currentThread().interrupt();
-            return null;
-        }
-    }
-
-    public boolean isKitchenEmpty() {
-        return dishes.isEmpty();
     }
 }
