@@ -1,6 +1,7 @@
 package org.labs.lab1;
 
 import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Developer implements Comparable<Developer>, Runnable {
@@ -8,10 +9,10 @@ public class Developer implements Comparable<Developer>, Runnable {
     private final int id;
     private final Spoon leftSpoon;
     private final Spoon rightSpoon;
-    private final Queue<Developer> hungryDevs;
+    private final BlockingQueue<Developer> hungryDevs;
     private int eaten = 0;
 
-    public Developer(int id, Spoon leftSpoon, Spoon rightSpoon, Queue<Developer> hungryDevs) {
+    public Developer(int id, Spoon leftSpoon, Spoon rightSpoon, BlockingQueue<Developer> hungryDevs) {
         this.id = id;
         this.leftSpoon = leftSpoon;
         this.rightSpoon = rightSpoon;
